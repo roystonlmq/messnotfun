@@ -1,0 +1,333 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Claims
+{% endblock %}
+
+{% block main %}
+    <table class="table">
+        <div class="input-group mb-3">
+            <input type="text" id="filterClaim" onkeyup="myFunction()" placeholder="Search claim...">
+        </div>
+        <tr>
+            <td>
+                <!-- Add Claim Type -->
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addClaim">Add Claim Type</button>
+                <!-- Modal -->
+                <div class="modal fade" id="addClaim" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Add a new Claim Type</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="/add_claim_type" method="post">
+                            <div class="modal-body">
+                                <div class="input-group mb-3">
+
+                                    <span class="input-group-text">Enter a new Claim Type</span>
+                                    <input autofocus autocomplete="on" name="addClaim" type="text" class="form-control" minlength="1" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
+                                <button type="submit" class="btn btn-primary">Add Claim</button>
+                            </div>
+                            </div>
+                        </form>
+                </div>
+                </div>
+
+            </td>
+            <!-- Edit Claim Type -->
+            <td>
+                <!-- Button -->
+                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editClaim">Edit Claim Type</button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="editClaim" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Edit current new Claim Type</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="/edit_claim_type" method="post">
+                        <div class="modal-body">
+                            <p></p>
+                            <p>
+                                <select class="form-select mx-auto w-auto" aria-label="Default select example" name="originalClaimID" required>
+                                    <option selected DISABLED SELECTED>Claim Name</option>
+                                    {% for claim in claims %}
+                                    <option value="{{ claim.claim_id}}">{{ claim.claim_name }} </option>
+                                    {% endfor %}
+                                </select>
+                            </p>
+
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">Update Claim Name</span>
+                                <input autofocus autocomplete="on" type="text" class="form-control" minlength="1" required name="updatedClaim">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </form>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+            </td>
+            <!-- Remove Claim Type -->
+            <td>
+                <!-- Button -->
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#removeClaim">Remove Claim Type</button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="removeClaim" tabindex="-1" aria-labelledby="removeClaimModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Remove Existing Claim Type</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="/remove_claim_type" method="post">
+                        <div class="modal-body">
+                            <p></p>
+                            <p>
+                                <select class="form-select mx-auto w-auto" aria-label="Default select example" name="removeClaimID" required>
+                                    <option selected DISABLED SELECTED>Claim Name</option>
+                                    {% for claim in claims %}
+                                    <option value="{{ claim.claim_id}}">{{ claim.claim_name }} </option>
+                                    {% endfor %}
+                                </select>
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-danger">Remove Permanently</button>
+                        </form>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+            </td>
+        </tr>
+    </table>
+    <table class="table table-striped" id="claimTable">
+        <thead>
+            <tr class="table-info">
+                <th class="table-dark">Claim Name</th>
+                <th class="table-dark">Update Claim</th>
+            </tr>
+        </thead>
+        <!-- Show all claims -->
+        <form action="/claims" method="post">
+            <tbody>
+                {% for claim in claims %}
+
+                    <tr class="table-light">
+                        <td class="table-light">{{ claim.claim_name }}</td>
+                        <td class="table-light">
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserClaim{{ claim.claim_id }}">
+                            Add User Claim
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="addUserClaim{{ claim.claim_id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                <!-- Add a User's Claim -->
+                                <form action="/claims" method="post">
+                                    <input type="hidden" name="userClaimAction" value="addUserClaim">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Add User Claim</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+
+                                        <p>Claim Name: {{ claim.claim_name }} </p>
+                                        <input type="hidden" name="claimID" value="{{ claim.claim_id }}">
+                                        <select class="form-select mx-auto w-auto" aria-label="Default select example" name="personnelID" required>
+                                                <option selected DISABLED SELECTED>Personnel</option>
+                                                {% for name in personnel %}
+                                                    <option value="{{ name.personnel_id }}">{{ name.name | capitalize}}</option>
+                                                {% endfor %}
+                                        </select>
+                                        <p></p>
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text">Number of Claims</span>
+                                            <input autofocus autocomplete="on" type="number" name="numberOfClaims" class="form-control" min="0" required>
+                                        </div>
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text">Cost per Claim</span>
+                                            <span class="input-group-text">$0.00</span>
+                                            <input autofocus autocomplete="on" type="number" step="0.01" name="costPerClaim" class="form-control" min="0" required>
+                                        </div>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                    </form>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                            <!-- Edit User Claim Button trigger modal -->
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editUserClaim{{ claim.claim_id }}">
+                            Edit User Claim
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="editUserClaim{{ claim.claim_id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                <!-- Edit a User's Claim -->
+                                <form action="/claims" method="post">
+                                    <input type="hidden" name="userClaimAction" value="editUserClaim">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Edit User Claim</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Claim Name: {{ claim.claim_name }} </p>
+                                        <input type="hidden" name="claimID" value="{{ claim.claim_id }}">
+                                        <select class="form-select mx-auto w-auto" aria-label="Default select example" name="personnelID" required>
+                                            <option selected disabled>Personnel</option>
+                                            {% for name in personnel %}
+                                                <option value="{{ name.personnel_id }}">{{ name.name | capitalize}} </option>
+                                            {% endfor %}
+                                        </select>
+                                        <p></p>
+                                        <select class="form-select mx-auto w-auto" aria-label="Default select example" name="spendingID" required>
+                                            <option selected disabled>Claim</option>
+                                            {% for individual_claim in individual_user_claim %}
+                                                {% if individual_claim.claim_name == claim.claim_name %}
+                                                <option value="{{ individual_claim.id }}" data-personnel="{{ individual_claim.personnel_id }}" style="display: none">
+                                                    {{ individual_claim.datetime }} -- ${{ individual_claim.individual_cost }}
+                                                </option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+
+
+                                        <p></p>
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text">Number of Claims</span>
+                                            <input autofocus autocomplete="on" type="number" name="numberOfClaims" class="form-control" min="0" required>
+                                        </div>
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text">Cost per Claim</span>
+                                            <span class="input-group-text">$0.00</span>
+                                            <input autofocus autocomplete="on" type="number" step="0.01" name="costPerClaim" class="form-control" min="0" required>
+                                        </div>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                    </form>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                            <!-- Remove User Claim Button trigger modal -->
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#removeUserClaim{{ claim.claim_id }}">
+                            Remove User Claim
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="removeUserClaim{{ claim.claim_id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                <!-- Remove a User's Claim -->
+                                <form action="/claims" method="post">
+                                    <input type="hidden" name="userClaimAction" value="removeUserClaim">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Remove User Claim</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Claim Name: {{ claim.claim_name }} </p>
+
+                                        <select class="form-select mx-auto w-auto" aria-label="Default select example" name="personnelID" required>
+                                                <option selected DISABLED SELECTED>Personnel</option>
+                                                {% for name in personnel %}
+                                                    <option value="{{ name.personnel_id }}">{{ name.name | capitalize}} </option>
+                                                {% endfor %}
+                                        </select>
+                                        <p></p>
+                                        <select class="form-select mx-auto w-auto" aria-label="Default select example" name="spendingID" required>
+                                            <option selected disabled>Claim</option>
+                                            {% for individual_claim in individual_user_claim %}
+                                                {% if individual_claim.claim_name == claim.claim_name %}
+                                                <option value="{{ individual_claim.id }}" data-personnel="{{ individual_claim.personnel_id }}" style="display: none">
+                                                    {{ individual_claim.datetime }} -- ${{ individual_claim.individual_cost }}
+                                                </option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                    </form>
+                                    </div>
+                                    </div>
+                                </div>
+                                </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </form>
+
+    </table>
+    <script>
+        function myFunction() {
+          // Declare variables
+          var input, filter, table, tr, td1, td2, i, txtValue;
+          input = document.getElementById("filterClaim");
+          filter = input.value.toUpperCase();
+          table = document.getElementById("claimTable");
+          tr = table.getElementsByTagName("tr");
+
+          // Loop through all table rows, and hide those who don't match the search query
+          for (i = 0; i < tr.length; i++) {
+            td1 = tr[i].getElementsByTagName("td")[0]; // claim ID
+            td2 = tr[i].getElementsByTagName("td")[1]; // claim name
+            if (td1 || td2) {
+              txtValue1 = td1.textContent || td1.innerText;
+              txtValue2 = td2.textContent || td2.innerText;
+              if (txtValue1.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+              } else {
+                tr[i].style.display = "none";
+              }
+            }
+          }
+        }
+
+        $(document).ready(function() {
+            $('select[name="personnelID"]').on('change', function() {
+                var selected_personnel_id = $(this).val();
+                $('select[name="spendingID"] option').each(function() {
+                    if ($(this).data('personnel') == selected_personnel_id) {
+                        $(this).show();
+
+                    } else {
+                        $(this).hide();
+                    }
+                });
+                $('select[name="spendingID"]').val('');
+            });
+        });
+
+        </script>
+
+
+
+{% endblock %}

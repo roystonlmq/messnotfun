@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Personnel</th>
+                <th>Balance</th>
+                <th>Breakdown</th>
+            </tr>
+        </thead>
+
+    <tbody>
+
+        {% for person_data in personnel %}
+            <tr>
+
+                <td>{{ person_data.name|capitalize }}</td>
+                <!--Checks spending is not none-->
+                {% set bal = namespace(amount=person_data.deposit) %}
+                {% if claims %}
+
+                    {% for claim in claims %}
+                        <!--Show only data relevant to the personnel-->
+                        {% if claim.personnel_id == person_data.personnel_id %}
+                            {% set bal.amount = person_data.deposit - claim.total_cost %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <!--If none of the claims match, then just show the person's deposit-->
+
+                <td>{{ bal.amount | sgd }}</td>
+                <!--If spending list is none, show deposit as balance-->
+                {% else %}
+                    <td>{{ person_data.deposit | sgd }}</td>
+                {% endif %}
+
+                <td><!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#breakdownModal{{ person_data.personnel_id }}" data-personnel-id="{{ person_data.personnel_id }}">
+                        View Breakdown
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="breakdownModal{{ person_data.personnel_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+
+                        <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle">Breakdown</h5>
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date Time</th>
+                                            <th>Claim Name</th>
+                                            <th>Total Cost</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for spend_data in spending %}
+                                            {% if person_data.personnel_id == spend_data.personnel_id %}
+                                                <tr>
+                                                    <td>{{ spend_data.datetime }}</td>
+                                                    <td>{{ spend_data.claim_name }}</td>
+                                                    <td>{{ spend_data.individual_cost | sgd }}</td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+
+    </tbody>
+
+
+    </table>
+
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Deposit
+{% endblock %}
+
+{% block main %}
+    <form action="/deposit" method="post">
+
+        <div class="mb-3">
+            <select class="form-select mx-auto w-auto" aria-label="Default select example" name="personnelID" required>
+                <option selected DISABLED SELECTED>Personnel</option>
+                {% for person in personnel %}
+                    <option value="{{ person.personnel_id }}" data-deposit="{{ person.deposit }}">{{ person.name | capitalize}}</option>
+                {% endfor %}
+            </select>
+            <p></p>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="deposit" name="deposit" placeholder="Deposit ($)" type="number" min="1" step="0.01" required>
+        </div>
+        <button class="btn btn-primary" type="submit">Deposit</button>
+    </form>
+    <script>
+        $(document).ready(function() {
+            $('select[name="personnelID"]').on('change', function() {
+                var selected_deposit = $('option:selected', this).data('deposit');
+                $('input[name="currentDeposit"]').val(selected_deposit);
+            });
+        });
+        </script>
+
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    User Configuration
+{% endblock %}
+
+{% block main %}
+    <form action="/user_config" method="post">
+        <div class="mb-3">
+            <select class="form-select mx-auto w-auto" name="config" id="config">
+                    <option value="default" DISABLED SELECTED>Please Select</option>
+                {% for key, config in USER_CONFIG.items() %}
+                    <option value="{{ key }}" >{{ config }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-primary" type="submit">Next</button>
+        </div>
+    </form>
+
+
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Remove Personnel
+{% endblock %}
+
+{% block main %}
+    <form id="mainForm" action="/remove-personnel" method="post">
+        <div class="mb-3">
+            <div class="mb-3">
+                <select class="form-select mx-auto w-auto" aria-label="Default select example" name="personnel" required>
+                    <option selected DISABLED SELECTED>Personnel</option>
+                    {% for person in personnel %}
+                        <option value="{{ person.personnel_id }}-{{ person.name }}">{{ person.name | capitalize }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" id="btnRemove" disabled>
+                Remove Personnel
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirm Remove Personnel</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                    Confirm you want to remove <span id="username"></span>?
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                    <button type="submit" class="btn btn-primary" id="btnConfirm">Yes</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <!-- Add this script at the bottom of your file -->
+    <script>
+        // Function for titlecase
+        function toTitleCase(str) {
+            return str.toLowerCase().split(' ').map(function (word) {
+                return (word.charAt(0).toUpperCase() + word.slice(1));
+            }).join(' ');
+        }
+
+        // Get the elements
+        const personnelSelect = document.querySelector('select[name="personnel"]');
+        const usernameSpan = document.querySelector('#username');
+        const selectedPersonnelInput = document.querySelector('#selectedPersonnel');
+        const removeButton = document.querySelector('#btnRemove');
+
+        // Listen for changes on the personnel select input
+        personnelSelect.addEventListener('change', (event) => {
+            // Get the selected personnel ID and name
+            const [selectedPersonnelId, selectedPersonnelName] = event.target.value.split('-');
+
+            // Update the modal body text content to include the selected personnel name
+            usernameSpan.textContent = toTitleCase(selectedPersonnelName);
+
+            // Enable the Remove Personnel button
+            removeButton.disabled = false;
+        });
+
+        // Disable the Remove Personnel button on page load
+        removeButton.disabled = true;
+
+    </script>
+
+{% endblock %}
